@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+const path = require('path');
 const { readFileContent, listProjectFiles } = require('./file_utils');
 
 
@@ -14,6 +15,14 @@ const server = http.createServer(async (req, res) => {
 
 		else if (req.url.startsWith('/file/')) {
 		const filename = req.url.replace('/file/', '');
+		const safePath = path.resolve('.', filename);
+  	const projectDir = path.resolve('.');
+ 			 if (!safePath.startsWith(projectDir + path.sep)) {
+					res.writeHead(403);
+					res.end('Accès interdit - tentative  detectee');
+					return;
+  }
+
 			try {
 				await fs.promises.access(filename);
 				res.writeHead(200, { 'Content-Type': 'text/plain' });
